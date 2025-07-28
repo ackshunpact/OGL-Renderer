@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.31)
 project(ducky)
-
+if(MINGW)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -static")
+endif()
 find_package(fmt CONFIG REQUIRED)
 include_directories(${FMT_INCLUDE_DIR})
 
@@ -22,5 +25,7 @@ add_executable(ducky main.cpp ${CMAKE_SOURCE_DIR}/libraries/glad/src/glad.c
         src/Scene.cpp
         src/Scene.h
         src/OBJMesh.cpp
-        src/OBJMesh.h)
+        src/OBJMesh.h
+        src/Vertex.h
+        src/PerspectiveProjectionInfo.h)
 target_link_libraries(ducky PRIVATE fmt::fmt glm::glm glfw ${CMAKE_SOURCE_DIR}/libraries/glad/include/glad/glad.h tinyobjloader::tinyobjloader)

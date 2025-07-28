@@ -8,14 +8,14 @@
 #include <glm/fwd.hpp>
 #include <glm/ext.hpp>
 #include <glm/detail/type_quat.hpp>
+#include "PerspectiveProjectionInfo.h"
 
 struct PerspectiveProjectionInfo;
-
 
 class Camera {
 public:
     Camera(const glm::vec3& pos, const glm::vec3& target,
-        const glm::vec3& up, PerspectiveProjectionInfo ppInfo);
+        const glm::vec3& up, const PerspectiveProjectionInfo *ppInfo);
     const glm::mat4& getProjMatrix() const { return ppMat; }
     const glm::vec3 getPosition() const;
     const glm::mat4 getView() const;

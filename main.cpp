@@ -15,9 +15,7 @@
 int main() {
 
     Renderer* renderer = new Renderer();
-    renderer->InitRenderer();
-    renderer->InitCamera();
-    renderer->InitScene();
+
     renderer->Run();
 
 

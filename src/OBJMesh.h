@@ -8,8 +8,7 @@
 #include <tiny_obj_loader.h>
 #include <filesystem>
 #include <fmt/printf.h>
-
-struct Vertex;
+#include "Vertex.h"
 
 class OBJMesh {
 public:

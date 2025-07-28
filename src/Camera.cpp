@@ -3,20 +3,20 @@
 //
 
 #include "Camera.h"
-#include "Definitions.h"
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
+
 Camera::Camera(const glm::vec3& pos, const glm::vec3& target,
-               const glm::vec3& up, PerspectiveProjectionInfo ppInfo) {
+               const glm::vec3& up, const PerspectiveProjectionInfo *ppInfo) {
     this->pos = pos;
-    float aspectRatio = float(ppInfo.width) / float(ppInfo.height);
+    float aspectRatio = float(ppInfo->width) / float(ppInfo->height);
     this->orientation = glm::lookAtLH(pos, target, up);
-    this->ppMat = glm::perspectiveLH(ppInfo.fov, aspectRatio, 0.01f, 100.0f);
+    this->ppMat = glm::perspectiveLH(ppInfo->fov, aspectRatio, 0.01f, 100.0f);
 }
 
 const glm::vec3 Camera::getPosition() const {
-
+    return glm::vec3(pos.x, pos.y, pos.z);
 }
 const glm::mat4 Camera::getView() const {
     glm::mat4 t = glm::translate(glm::mat4(1.0f), -pos);

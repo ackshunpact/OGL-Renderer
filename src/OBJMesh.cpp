@@ -3,9 +3,8 @@
 //
 
 #include "OBJMesh.h"
-#include "Definitions.h"
-
 #include <iostream>
+
 
 OBJMesh::OBJMesh(const std::string& filePath) {
     loadOBJFromFile(filePath, vertices);

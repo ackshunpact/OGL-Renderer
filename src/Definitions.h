@@ -8,24 +8,15 @@
 #include <string>
 #include <glm/glm.hpp>
 
-namespace Constants {
-    struct Vertex {
-        glm::vec3 position;
-        glm::vec3 normal;
-        glm::vec3 color;
-    };
 
 
-    struct PerspectiveProjectionInfo {
-        float width;
-        float height;
-        float fov;
-        float zNear;
-        float zFar;
-    };
+namespace Common {
+
 
     inline int width = 800;
     inline int height = 600;
+    inline float zNear = 0.1f;
+    inline float zFar = 100.0f;
     inline float horizontalAngle = 3.14f;
     inline float verticalAngle = 0.0f;
     inline float initialFoV = 45.0f;
@@ -46,6 +37,8 @@ namespace Constants {
     inline glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
     inline glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
     inline glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+
 
     inline const char *vertex_shader =
             "#version 330 core\n"

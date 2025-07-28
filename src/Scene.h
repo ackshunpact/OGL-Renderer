@@ -11,9 +11,11 @@
 
 class Scene {
 public:
-    std::vector<std::unique_ptr<OBJMesh*>> objMeshes;
+    std::vector<OBJMesh*> objMeshes;
     std::vector<std::string> filePaths;
     Scene();
+    std::vector<OBJMesh*> getObjMeshes() { return objMeshes; }
+
 };
 
 
