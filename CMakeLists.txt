@@ -27,5 +27,7 @@ add_executable(ducky main.cpp ${CMAKE_SOURCE_DIR}/libraries/glad/src/glad.c
         src/OBJMesh.cpp
         src/OBJMesh.h
         src/Vertex.h
-        src/PerspectiveProjectionInfo.h)
+        src/PerspectiveProjectionInfo.h
+        src/Window.cpp
+        src/Window.h)
 target_link_libraries(ducky PRIVATE fmt::fmt glm::glm glfw ${CMAKE_SOURCE_DIR}/libraries/glad/include/glad/glad.h tinyobjloader::tinyobjloader)

@@ -21,7 +21,12 @@ namespace Common {
     inline float verticalAngle = 0.0f;
     inline float initialFoV = 45.0f;
     inline float speed = 3.0f;
-    inline float mouseSpeed = 0.02f;
+    inline float mouseSpeed = 0.08f;
+
+    inline float prevMouseX, prevMouseY;
+    inline bool firstMouse = true;
+
+
 
     inline const std::string pFile = "D:/dev/cpp/ducky/assets/cube.obj";
 

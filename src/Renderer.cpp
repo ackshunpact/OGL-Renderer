@@ -8,6 +8,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 
+
+
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 const char *vertex_shader =
@@ -28,39 +30,17 @@ const char *fragment_shader =
         "out vec4 frag_colour;\n"
         "uniform vec3 ourColor;\n"
         "void main() {\n"
-        "  frag_colour = vec4(1.0);\n"
+        "  frag_colour = vec4(abs(normColor.x), abs(normColor.y), abs(normColor.z), 1.0);\n"
         "}\0";
 
 Renderer::Renderer() {
     InitScene();
     InitRenderer();
-    InitCamera();
 }
 
 void Renderer::InitRenderer() {
-    if (!glfwInit()) {
-        std::cout << "Failed to initialize GLFW" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
-    window = std::make_unique<GLFWwindow*>(glfwCreateWindow(Common::width, Common::height, "Ducky v0.1", NULL, NULL));
-    if (!window) {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-
-    glfwSetKeyCallback(*window.get(), key_callback);
-    // glfwSetInputMode(*window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    // glfwSetCursorPosCallback(window, cursor_position_callback);
-    glfwMakeContextCurrent(*window.get());
+    window = std::make_unique<Window>();
     int loaded = gladLoadGL();
-    printf("%d", loaded);
     if (!loaded) {
         printf("Failed to load GL\n");
         exit(-1);
@@ -123,15 +103,14 @@ void Renderer::InitRenderer() {
 
 
 }
-void Renderer::InitCamera() {
-    PerspectiveProjectionInfo perspectiveInfo(Common::width, Common::height, Common::initialFoV, Common::zNear, Common::zFar);
-    this->camera = std::make_unique<Camera>(Camera(Common::cameraPos, Common::cameraFront, Common::cameraUp, &perspectiveInfo));
-}
+
 
 void Renderer::Run() {
-
-    while (!glfwWindowShouldClose(*window.get())) {
-        glfwPollEvents();
+    float prevTime = float(window->markTime());
+    while (!window->checkWindowshouldClose()) {
+        float currTime = float(window->markTime());
+        float deltaTime = currTime - prevTime;
+        window->pollEvents();
 
         auto verts = scene.get()->objMeshes[0]->vertices;
 
@@ -143,7 +122,8 @@ void Renderer::Run() {
         glm::mat4 ViewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -5.0f));
         glm::mat4 ProjMatrix = glm::perspectiveFov(45.0f, 800.f, 600.f, 0.01f, 100.0f);
 
-        glm::mat4 MVP = ProjMatrix * ViewMatrix * ModelMatrix;
+        // glm::mat4 MVP = ProjMatrix * ViewMatrix * ModelMatrix;
+        glm::mat4 MVP = window->GetVPMatrix();
 
         glm::vec3 color(1.0, 0.0, 1.0);
         GLint colorLoc = glGetUniformLocation(shaderProgram, "ourColor");
@@ -156,47 +136,14 @@ void Renderer::Run() {
         glBindVertexArray(VAOs[0]);
         glDrawArrays(GL_TRIANGLES, 0, verts.size());
         // glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-        glfwSwapBuffers(*window.get());
 
-        //updatePosition();
+        window->updateCamera(deltaTime);
+        window->swapBuffers();
+        prevTime = currTime;
     }
 
 }
 
-
-void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_E && action == GLFW_PRESS)
-        printf("%d", key);
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-    if (key == GLFW_KEY_S && action == GLFW_PRESS)
-        Common::S_PRESSED = true;
-    if (key == GLFW_KEY_W && action == GLFW_PRESS)
-        Common::W_PRESSED = true;
-    if (key == GLFW_KEY_D && action == GLFW_PRESS)
-        Common::D_PRESSED = true;
-    if (key == GLFW_KEY_A && action == GLFW_PRESS)
-        Common::A_PRESSED = true;
-
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-        Common::SPACE_PRESSED = true;
-    if (key == GLFW_KEY_Z && action == GLFW_PRESS)
-        Common::Z_PRESSED = true;
-
-    if (key == GLFW_KEY_S && action == GLFW_RELEASE)
-        Common::S_PRESSED = false;
-    if (key == GLFW_KEY_W && action == GLFW_RELEASE)
-        Common::W_PRESSED = false;
-    if (key == GLFW_KEY_D && action == GLFW_RELEASE)
-        Common::D_PRESSED = false;
-    if (key == GLFW_KEY_A && action == GLFW_RELEASE)
-        Common::A_PRESSED = false;
-
-    if (key == GLFW_KEY_SPACE && action == GLFW_RELEASE)
-        Common::SPACE_PRESSED = false;
-    if (key == GLFW_KEY_Z && action == GLFW_RELEASE)
-        Common::Z_PRESSED = false;
-}
 
 void Renderer::InitScene() {
     this->scene = std::make_unique<Scene>(Scene());
