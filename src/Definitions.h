@@ -13,8 +13,8 @@
 namespace Common {
 
 
-    inline int width = 800;
-    inline int height = 600;
+    inline int width = 2*800;
+    inline int height = 2*600;
     inline float zNear = 0.1f;
     inline float zFar = 100.0f;
     inline float horizontalAngle = 3.14f;
@@ -26,9 +26,13 @@ namespace Common {
     inline float prevMouseX, prevMouseY;
     inline bool firstMouse = true;
 
+    inline bool flagChanged = false;
+    inline bool renderWireframe = false;
 
 
-    inline const std::string pFile = "D:/dev/cpp/ducky/assets/cube.obj";
+
+    inline const std::string pFile = "D:/dev/cpp/ducky/assets/cat_obj/cat.obj";
+    // inline const std::string pFile = "D:/dev/cpp/ducky/assets/cube.obj";
 
 
     inline bool W_PRESSED = false;

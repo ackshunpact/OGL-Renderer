@@ -9,29 +9,9 @@
 #include <glad/glad.h>
 
 
-
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+std::vector<glm::vec3> generatePositionMatrices();
 
-const char *vertex_shader =
-        "#version 330 core\n"
-        "layout (location=0) in vec3 aPos;\n"
-        "layout (location=1) in vec3 aNorm;\n"
-        "layout (location=2) in vec3 aColor;\n"
-        "out vec3 normColor;"
-        "uniform mat4 transform;\n"
-        "void main() {\n"
-        "  gl_Position = transform * vec4( aPos, 1.0 );\n"
-        "  normColor = aNorm;\n"
-        "}\0";
-
-const char *fragment_shader =
-        "#version 330 core\n"
-        "in vec3 normColor;\n"
-        "out vec4 frag_colour;\n"
-        "uniform vec3 ourColor;\n"
-        "void main() {\n"
-        "  frag_colour = vec4(abs(normColor.x), abs(normColor.y), abs(normColor.z), 1.0);\n"
-        "}\0";
 
 Renderer::Renderer() {
     InitScene();
@@ -67,47 +47,31 @@ void Renderer::InitRenderer() {
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
 
-
-
-    int success;
-    char infoLog[512];
-
-    GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vs, 1, &vertex_shader, NULL);
-    glCompileShader(vs);
-    glGetShaderiv(vs, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vs, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-
-
-    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fs, 1, &fragment_shader, NULL);
-    glCompileShader(fs);
-    glGetShaderiv(fs, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fs, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, fs);
-    glAttachShader(shaderProgram, vs);
-    glLinkProgram(shaderProgram);
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
+    defaultShader = new Shader("../shaders/default.vert", "../shaders/default.frag");
 
 
 }
 
 
 void Renderer::Run() {
+    std::vector<glm::vec3> offset_Instances = generatePositionMatrices();
+    GLuint instanceVBO;
+    glGenBuffers(1, &instanceVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glBufferData(GL_ARRAY_BUFFER, offset_Instances.size() * sizeof(glm::vec3), offset_Instances.data(), GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribDivisor(3, 1);
+
+
     float prevTime = float(window->markTime());
     while (!window->checkWindowshouldClose()) {
+        if (Common::flagChanged) {
+            printf("process flags() invoked\n");
+            ProcessFlags();
+        }
         float currTime = float(window->markTime());
         float deltaTime = currTime - prevTime;
         window->pollEvents();
@@ -116,27 +80,21 @@ void Renderer::Run() {
 
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glUseProgram(shaderProgram);
+        glUseProgram(defaultShader->ID);
 
-        glm::mat4 ModelMatrix = glm::mat4(1.0);
-        glm::mat4 ViewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -5.0f));
-        glm::mat4 ProjMatrix = glm::perspectiveFov(45.0f, 800.f, 600.f, 0.01f, 100.0f);
-
-        // glm::mat4 MVP = ProjMatrix * ViewMatrix * ModelMatrix;
         glm::mat4 MVP = window->GetVPMatrix();
 
         glm::vec3 color(1.0, 0.0, 1.0);
-        GLint colorLoc = glGetUniformLocation(shaderProgram, "ourColor");
+        GLint colorLoc = glGetUniformLocation(defaultShader->ID, "ourColor");
         glUniform3fv(colorLoc, 1, glm::value_ptr(color));
 
 
-        GLint transformLoc = glGetUniformLocation(shaderProgram, "transform");
+        GLint transformLoc = glGetUniformLocation(defaultShader->ID, "transform");
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &MVP[0][0]);
 
         glBindVertexArray(VAOs[0]);
-        glDrawArrays(GL_TRIANGLES, 0, verts.size());
-        // glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-
+        // glDrawArrays(GL_TRIANGLES, 0, verts.size());
+        glDrawArraysInstanced(GL_TRIANGLES, 0, verts.size(), offset_Instances.size());
         window->updateCamera(deltaTime);
         window->swapBuffers();
         prevTime = currTime;
@@ -147,4 +105,29 @@ void Renderer::Run() {
 
 void Renderer::InitScene() {
     this->scene = std::make_unique<Scene>(Scene());
+}
+
+std::vector<glm::vec3> generatePositionMatrices() {
+    int NUM_INSTANCES = 1000;
+    std::vector<glm::vec3> offsets(NUM_INSTANCES);
+    for (int i = -10; i < 10; i+=2) {
+        for (int j = -10; j < 10; j+=2) {
+            for (int k = -10; k < 10; k+=2) {
+                glm::vec3 offset = glm::vec3(static_cast<float>(i), static_cast<float>(j), static_cast<float>(k));
+                offsets.push_back(offset);
+            }
+        }
+    }
+
+    return offsets;
+}
+
+void Renderer::ProcessFlags() {
+    if (Common::renderWireframe) {
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    } else {
+        glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+    }
+
+    Common::flagChanged = false;
 }

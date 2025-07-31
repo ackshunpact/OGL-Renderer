@@ -89,6 +89,11 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
         Common::SPACE_PRESSED = true;
     if (key == GLFW_KEY_Z && action == GLFW_PRESS)
         Common::Z_PRESSED = true;
+    if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+        Common::renderWireframe = !Common::renderWireframe;
+        Common::flagChanged = true;
+        printf("toggle renderWireframe %d, flagChanged %d\n", Common::renderWireframe, Common::flagChanged);
+    }
 
     if (key == GLFW_KEY_S && action == GLFW_RELEASE)
         Common::S_PRESSED = false;

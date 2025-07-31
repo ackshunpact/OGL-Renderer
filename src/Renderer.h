@@ -12,6 +12,7 @@
 #include <memory>
 #include <vector>
 #include "Definitions.h"
+#include "Shader.h"
 #include "Window.h"
 
 
@@ -23,13 +24,14 @@ public:
     Renderer();
     void InitScene();
     void InitRenderer();
-
     void Run();
+
+    void ProcessFlags();
 private:
     std::vector<unsigned int> VAOs;
     std::vector<unsigned int> VBOs;
     std::vector<unsigned int> shaders;
-    GLuint shaderProgram;
+    Shader* defaultShader;
 
     std::unique_ptr<Window> window ;
     std::unique_ptr<Scene> scene;
