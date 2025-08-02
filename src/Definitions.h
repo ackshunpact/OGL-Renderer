@@ -13,19 +13,23 @@
 namespace Common {
 
 
-    inline int width = 2*800;
-    inline int height = 2*600;
+    inline int width = 800;
+    inline int height = 600;
     inline float zNear = 0.1f;
     inline float zFar = 100.0f;
     inline float horizontalAngle = 3.14f;
     inline float verticalAngle = 0.0f;
     inline float initialFoV = 45.0f;
-    inline float speed = 3.0f;
+    inline float speed =10.0f;
     inline float mouseSpeed = 0.08f;
 
+    // Callback related
     inline float prevMouseX, prevMouseY;
     inline bool firstMouse = true;
+    inline float scrollTranslateObjectSpacing = 1.0f;
+    inline float currentTranslateObjectSpacing = 1.0f;
 
+    // Render feature flags
     inline bool flagChanged = false;
     inline bool renderWireframe = false;
 

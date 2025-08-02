@@ -12,6 +12,7 @@
 #include <memory>
 #include <vector>
 #include "Definitions.h"
+#include "ImageRegistry.h"
 #include "Shader.h"
 #include "Window.h"
 
@@ -23,16 +24,22 @@ class Renderer {
 public:
     Renderer();
     void InitScene();
+    void InitTextures();
     void InitRenderer();
     void Run();
 
     void ProcessFlags();
+
+
 private:
     std::vector<unsigned int> VAOs;
     std::vector<unsigned int> VBOs;
     std::vector<unsigned int> shaders;
-    Shader* defaultShader;
+    std::vector<unsigned int> textures;
 
+    Shader* defaultShader;
+    ImageRegistry *iReg;
+    unsigned int tex1;
     std::unique_ptr<Window> window ;
     std::unique_ptr<Scene> scene;
     std::unique_ptr<Camera> camera;

@@ -32,6 +32,9 @@ void Window::Init() {
 
     glfwSetKeyCallback(window.get(), key_callback);
     glfwSetCursorPosCallback(window.get(), cursor_position_callback);
+    glfwSetScrollCallback(window.get(), scroll_callback);
+
+
     glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwMakeContextCurrent(window.get());
     InitCamera();
@@ -126,9 +129,14 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
     Common::prevMouseY = ypos;
     Window* thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
     thisWindow->processMouseMovement(xOffset, yOffset);
-
-
 }
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    printf("(%f, %f)\n", xoffset, yoffset);
+    Common::scrollTranslateObjectSpacing += yoffset / 10.0f;
+}
+
 void Window::processMouseMovement(float xOffset, float yOffset) {
     xOffset *= Common::mouseSpeed;
     yOffset *= Common::mouseSpeed;
@@ -174,22 +182,6 @@ void Window::UpdateCameraVectors() {
     this->camera->cameraUp = glm::cross(this->camera->cameraRight, this->camera->cameraFront);
     glm::mat3 rotMatrix(camera->cameraRight, camera->cameraUp, -camera->cameraFront);
     camera->orientation = glm::quat_cast(rotMatrix);
-
-    // glm::vec3 newFront;
-    // newFront.x = cos(yaw) * cos(pitch);
-    // newFront.y = sin(pitch);
-    // newFront.z = sin(yaw) * cos(pitch);
-    // cameraFront = glm::normalize(newFront);
-    // direction = cameraFront; // Keep direction in sync
-    //
-    // // Recalculate right and up vectors
-    // cameraRight = glm::normalize(glm::cross(cameraFront, worldUp));
-    // cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
-    //
-    // // Update orientation quaternion to match new vectors
-    // glm::mat3 rotMatrix(cameraRight, cameraUp, -cameraFront);
-    // orientation = glm::quat_cast(rotMatrix);
-
 }
 
 glm::mat4 Window::GetVPMatrix() {

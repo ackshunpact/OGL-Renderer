@@ -55,6 +55,11 @@ bool OBJMesh::loadOBJFromFile(const std::filesystem::path &path, std::vector<Ver
             attrib.colors[3 * idx.vertex_index + 1],
             attrib.colors[3 * idx.vertex_index + 2]
         };
+
+        vertexData[i].uv = {
+        attrib.texcoords[2 * idx.texcoord_index + 0],
+        attrib.texcoords[2 * idx.texcoord_index + 1]
+        };
     }
     return true;
 }

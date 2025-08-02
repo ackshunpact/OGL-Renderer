@@ -14,7 +14,11 @@ std::vector<glm::vec3> generatePositionMatrices();
 
 
 Renderer::Renderer() {
+    iReg = new ImageRegistry();
+    iReg->insert("wall1", "D:/dev/cpp/ducky/assets/wall.jpg");
+
     InitScene();
+    // InitTextures();
     InitRenderer();
 }
 
@@ -33,10 +37,19 @@ void Renderer::InitRenderer() {
     glBindVertexArray(VAO);
     VAOs.push_back(VAO);
 
+
     std::vector<OBJMesh*> verts = scene->objMeshes;
     glGenBuffers(1, &VBO1);
     glBindBuffer(GL_ARRAY_BUFFER, VBO1);
     glBufferData(GL_ARRAY_BUFFER, verts[0]->vertices.size() * sizeof(Vertex), verts[0]->vertices.data(), GL_STATIC_DRAW);
+
+    std::shared_ptr<Image> img = iReg->get("wall1");
+
+    glGenTextures(1, &tex1);
+    glBindTexture(GL_TEXTURE_2D, tex1);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, img->width, img->height, 0, GL_BGR, GL_UNSIGNED_BYTE, img->data.data());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
@@ -46,6 +59,9 @@ void Renderer::InitRenderer() {
 
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
 
     defaultShader = new Shader("../shaders/default.vert", "../shaders/default.frag");
 
@@ -65,7 +81,8 @@ void Renderer::Run() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glVertexAttribDivisor(3, 1);
 
-
+    float translationFactor = 1.0f;
+    float translationAccumulator = 0.0f;
     float prevTime = float(window->markTime());
     while (!window->checkWindowshouldClose()) {
         if (Common::flagChanged) {
@@ -91,7 +108,15 @@ void Renderer::Run() {
 
         GLint transformLoc = glGetUniformLocation(defaultShader->ID, "transform");
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &MVP[0][0]);
+        // section
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tex1);
+        if (translationAccumulator > 10.0f) translationAccumulator =-1.0f;
+        else if (translationAccumulator < -10.0f) translationAccumulator = 1.0f;
+        translationAccumulator += deltaTime;
+        defaultShader->setFloat("scrollOffset", 5*sin(translationAccumulator));
 
+        // // section
         glBindVertexArray(VAOs[0]);
         // glDrawArrays(GL_TRIANGLES, 0, verts.size());
         glDrawArraysInstanced(GL_TRIANGLES, 0, verts.size(), offset_Instances.size());
@@ -105,6 +130,25 @@ void Renderer::Run() {
 
 void Renderer::InitScene() {
     this->scene = std::make_unique<Scene>(Scene());
+}
+
+void Renderer::InitTextures() {
+    // Texture(GLuint target, GLint internalFormat, GLint type, bool genMipMap, GLint maxLod) : id(0), target(target),
+        // internalFormat(internalFormat), format(0), type(type), genMipMap(genMipMap) {
+    std::shared_ptr<Image> img = iReg->get("wall1");
+    glGenTextures(1, &tex1);
+    glBindTexture(GL_TEXTURE_2D, tex1);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, img->width, img->height, 0, GL_BGR, GL_UNSIGNED_BYTE, img->data.data());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, 4);
+
+
+
+
 }
 
 std::vector<glm::vec3> generatePositionMatrices() {
