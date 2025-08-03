@@ -8,18 +8,22 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 
+#include "ShaderManager.h"
+
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 std::vector<glm::vec3> generatePositionMatrices();
 
 
+
 Renderer::Renderer() {
     iReg = new ImageRegistry();
     iReg->insert("wall1", "D:/dev/cpp/ducky/assets/wall.jpg");
-
+    shaderManager = ShaderManager::getInstance();
     InitScene();
     // InitTextures();
     InitRenderer();
+    InitShaders();
 }
 
 void Renderer::InitRenderer() {
@@ -63,7 +67,6 @@ void Renderer::InitRenderer() {
     glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
 
-    defaultShader = new Shader("../shaders/default.vert", "../shaders/default.frag");
 
 
 }
@@ -97,25 +100,25 @@ void Renderer::Run() {
 
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glUseProgram(defaultShader->ID);
-
+        shaderManager->useShader("default");
         glm::mat4 MVP = window->GetVPMatrix();
 
         glm::vec3 color(1.0, 0.0, 1.0);
-        GLint colorLoc = glGetUniformLocation(defaultShader->ID, "ourColor");
-        glUniform3fv(colorLoc, 1, glm::value_ptr(color));
+        // GLint colorLoc = glGetUniformLocation(defaultShader->ID, "ourColor");
+        // glUniform3fv(colorLoc, 1, glm::value_ptr(color));
+        shaderManager->setUniform("ourColor", color);
 
-
-        GLint transformLoc = glGetUniformLocation(defaultShader->ID, "transform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &MVP[0][0]);
+        // GLint transformLoc = glGetUniformLocation(defaultShader->ID, "transform");
+        // glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &MVP[0][0]);
+        shaderManager->setUniform("transform", MVP);
         // section
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, tex1);
         if (translationAccumulator > 10.0f) translationAccumulator =-1.0f;
-        else if (translationAccumulator < -10.0f) translationAccumulator = 1.0f;
+        else if (translationAccumulator <= 0.0f) translationAccumulator = 1.0f;
         translationAccumulator += deltaTime;
-        defaultShader->setFloat("scrollOffset", 5*sin(translationAccumulator));
-
+        // defaultShader->setFloat("scrollOffset", 5*sin(translationAccumulator));
+        shaderManager->setUniform("scrollOffset", static_cast<float>(5 * sin(translationAccumulator)));
         // // section
         glBindVertexArray(VAOs[0]);
         // glDrawArrays(GL_TRIANGLES, 0, verts.size());
@@ -150,6 +153,14 @@ void Renderer::InitTextures() {
 
 
 }
+
+void Renderer::InitShaders() {
+    shaderManager->loadModule("vertex", "D:/dev/cpp/ducky/shaders/default.vert");
+    shaderManager->loadModule("fragment", "D:/dev/cpp/ducky/shaders/default.frag");
+    shaderManager->createShader("default", {"vertex"}, {"fragment"});
+
+}
+
 
 std::vector<glm::vec3> generatePositionMatrices() {
     int NUM_INSTANCES = 1000;

@@ -14,6 +14,7 @@
 #include "Definitions.h"
 #include "ImageRegistry.h"
 #include "Shader.h"
+#include "ShaderManager.h"
 #include "Window.h"
 
 
@@ -22,6 +23,8 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 
 class Renderer {
 public:
+    void InitShaders();
+
     Renderer();
     void InitScene();
     void InitTextures();
@@ -38,6 +41,7 @@ private:
     std::vector<unsigned int> textures;
 
     Shader* defaultShader;
+    ShaderManager* shaderManager;
     ImageRegistry *iReg;
     unsigned int tex1;
     std::unique_ptr<Window> window ;

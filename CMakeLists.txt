@@ -45,7 +45,10 @@ add_executable(ducky main.cpp ${CMAKE_SOURCE_DIR}/libraries/glad/src/glad.c
         src/Registry.h
         src/AssetManager.cpp
         src/AssetManager.h
-        src/IRegistry.h)
+        src/IRegistry.h
+        src/ShaderManager.h
+        src/ShaderManager.cpp
+)
 target_include_directories(ducky PRIVATE ${Stb_INCLUDE_DIR})
 
 target_link_libraries(ducky PRIVATE fmt::fmt glm::glm glfw ${CMAKE_SOURCE_DIR}/libraries/glad/include/glad/glad.h tinyobjloader::tinyobjloader)
