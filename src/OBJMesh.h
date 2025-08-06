@@ -15,7 +15,7 @@ public:
     std::vector<Vertex> vertices;
     OBJMesh(const std::string& filePath);
 
-    static bool loadOBJFromFile(const std::filesystem::path &path, std::vector<Vertex> &vertexData);
+    int loadOBJFromFile(const std::filesystem::path &path, std::vector<Vertex> &vertexData);
 };
 
 

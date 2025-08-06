@@ -35,7 +35,7 @@ void Window::Init() {
     glfwSetScrollCallback(window.get(), scroll_callback);
 
 
-    glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwMakeContextCurrent(window.get());
     InitCamera();
 

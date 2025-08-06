@@ -10,7 +10,7 @@ OBJMesh::OBJMesh(const std::string& filePath) {
     loadOBJFromFile(filePath, vertices);
 }
 
-bool OBJMesh::loadOBJFromFile(const std::filesystem::path &path, std::vector<Vertex> &vertexData) {
+int OBJMesh::loadOBJFromFile(const std::filesystem::path &path, std::vector<Vertex> &vertexData) {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
@@ -61,5 +61,5 @@ bool OBJMesh::loadOBJFromFile(const std::filesystem::path &path, std::vector<Ver
         attrib.texcoords[2 * idx.texcoord_index + 1]
         };
     }
-    return true;
+    return vertices.size() - 1;
 }

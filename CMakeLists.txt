@@ -48,6 +48,17 @@ add_executable(ducky main.cpp ${CMAKE_SOURCE_DIR}/libraries/glad/src/glad.c
         src/IRegistry.h
         src/ShaderManager.h
         src/ShaderManager.cpp
+        src/Game/GameObject.cpp
+        src/Game/GameObject.h
+        src/ECS/Core/Entity.h
+        src/ECS/Core/ComponentManager.cpp
+        src/ECS/Core/ComponentManager.h
+        src/ECS/Core/ECS.cpp
+        src/ECS/Core/ECS.h
+        src/ECS/Core/BaseSystem.h
+        src/ECS/Systems/RenderSystem.cpp
+        src/ECS/Systems/RenderSystem.h
+        src/ECS/Components/RenderComponent.h
 )
 target_include_directories(ducky PRIVATE ${Stb_INCLUDE_DIR})
 
